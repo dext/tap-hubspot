@@ -1,4 +1,8 @@
 """REST client handling, including HubspotStream base class."""
+import backoff
+import requests
+import types
+import copy
 from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Optional
 
@@ -94,7 +98,7 @@ class HubspotStream(RESTStream):
             params["after"] = next_page_token
         params["limit"] = 100
         return params
-    
+
     def get_selected_properties(self) -> List[dict]:
         selected_properties = [
             key[-1] for key, value in self.metadata.items()

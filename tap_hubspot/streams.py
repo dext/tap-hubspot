@@ -145,6 +145,10 @@ class ContactsStream(HubspotStream):
     ) -> Dict[str, Any]:
         selected_properties = self.get_selected_properties()
         params = super().get_url_params(context, next_page_token)
+<<<<<<< HEAD
+=======
+
+>>>>>>> ab31eea (Fix error due to large properties set)
         all_properties = self.properties
 
         chunks = self.get_properties_chunks(all_properties, 500)
