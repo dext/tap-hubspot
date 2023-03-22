@@ -118,6 +118,13 @@ class DealsStream(HubspotStream):
 
             yield params
 
+        chunks = self.get_properties_chunks(all_properties, 300)
+        for chunk in chunks:
+            params["properties"] = ",".join(chunk)
+            params["archived"] = context["archived"]
+
+            yield params
+
     @property
     def schema(self) -> dict:
         if self.cached_schema is None:
@@ -145,10 +152,7 @@ class ContactsStream(HubspotStream):
     ) -> Dict[str, Any]:
         selected_properties = self.get_selected_properties()
         params = super().get_url_params(context, next_page_token)
-<<<<<<< HEAD
-=======
 
->>>>>>> ab31eea (Fix error due to large properties set)
         all_properties = self.properties
 
         chunks = self.get_properties_chunks(all_properties, 500)
