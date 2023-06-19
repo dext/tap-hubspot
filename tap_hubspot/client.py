@@ -78,7 +78,7 @@ class HubspotStream(RESTStream):
         params: dict = {}
         if next_page_token:
             params["after"] = next_page_token
-        params['limit'] = 100
+        params['limit'] = 500
         return params
 
     def prepare_request_payload(
@@ -229,7 +229,7 @@ class HubspotStream(RESTStream):
         for i in range(0, len(all_records), batch_size):
             result.append(list(all_records[i:i + batch_size]))
         return result
-        
+
 
     def get_all_url_params(self, url_params: Iterable[dict], context: Optional[dict], next_page_token: Optional[Any]):
 
@@ -258,19 +258,19 @@ class HubspotStream(RESTStream):
         )
 
         return request
-    
+
 
     def prepare_request(
         self, context: Optional[dict], next_page_token: Optional[Any]
     ) -> requests.PreparedRequest:
-        
-        all_url_params = self.get_url_params(context, next_page_token) 
+
+        all_url_params = self.get_url_params(context, next_page_token)
 
         if isinstance(all_url_params, types.GeneratorType):
             for url_params in all_url_params:
                 request = self.get_all_url_params(url_params, context, next_page_token)
                 yield request
-        
+
         else:
             request = self.get_all_url_params(all_url_params, context, next_page_token)
             yield request
