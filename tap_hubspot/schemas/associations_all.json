@@ -22,6 +22,25 @@
                     }
                 }
             }
+        },
+        "fromObjectId": {
+            "type": ["null","integer"]
+        },  "associationTypes": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "category": {
+                        "type": ["null", "string"]
+                    },
+                    "typeId": {
+                        "type": ["null", "integer"]
+                    },
+                    "label": {
+                        "type": ["null", "string"]
+                    }
+                }
+            }
         }
     }
   }
