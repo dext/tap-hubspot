@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional, List, Iterable, Callable
 
 import pytz
-from singer_sdk._singerlib.utils import strptime_to_utc
+# from singer_sdk._singerlib.utils import strptime_to_utc
 from singer_sdk.exceptions import RetriableAPIError
 from singer_sdk.helpers.jsonpath import extract_jsonpath
 from singer_sdk.streams import RESTStream
