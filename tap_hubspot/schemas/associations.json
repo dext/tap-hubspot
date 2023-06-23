@@ -1,8 +1,20 @@
 {
-    "results": [
-      {
-        "id": "1",
-        "name": "contact_to_company"
-      }
-    ]
-  }
+  "status": ["null","string"],
+  "results": [
+    {
+      "from": {
+        "id": ["null","string"]
+      },
+      "to": [
+        {
+          "id": ["null","string"],
+          "type": ["null","string"]
+        }
+      ]
+    }
+  ],
+  "requestedAt": ["null","string"],
+  "startedAt": ["null","string"],
+  "completedAt": ["null","string"],
+  "links": ["object", "null"]
+}

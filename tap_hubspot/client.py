@@ -1,27 +1,18 @@
 """REST client handling, including HubspotStream base class."""
 import backoff
 import requests
-import types
-import copy
 from pathlib import Path
 from typing import Any, Dict, Optional, List, Iterable, Callable
 
 import pytz
-import singer
-
-from singer import utils
+from singer_sdk._singerlib.utils import strptime_to_utc
 from singer_sdk.exceptions import RetriableAPIError
 from singer_sdk.helpers.jsonpath import extract_jsonpath
 from singer_sdk.streams import RESTStream
 from singer_sdk.authenticators import BearerTokenAuthenticator
 from singer_sdk import typing as th
 
-from typing import Any, Callable, Dict, Generator, Iterable, List, Optional, Union, cast
-
 SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
-LOGGER = singer.get_logger()
-
-
 class HubspotStream(RESTStream):
     """Hubspot stream class."""
 
@@ -78,7 +69,7 @@ class HubspotStream(RESTStream):
         params: dict = {}
         if next_page_token:
             params["after"] = next_page_token
-        params['limit'] = 500
+        params['limit'] = 100
         return params
 
     def prepare_request_payload(
@@ -94,14 +85,6 @@ class HubspotStream(RESTStream):
         """Parse the response and return an iterator of result rows."""
         yield from extract_jsonpath(self.records_jsonpath, input=response.json())
 
-    def post_process(self, row: dict, context: Optional[dict]) -> dict:
-        """As needed, append or transform raw data to match expected structure.
-        Returns row, or None if row is to be excluded"""
-
-        if self.replication_key:
-            if utils.strptime_to_utc(row[self.replication_key]) <= self.get_starting_timestamp(context).astimezone(pytz.utc):
-                return None
-        return row
 
     def get_json_schema(self, from_type: str) -> dict:
         """Return the JSON Schema dict that describes the sql type.
@@ -176,6 +159,34 @@ class HubspotStream(RESTStream):
         properties.append(th.Property('createdAt', th.DateTimeType()))
         properties.append(th.Property('id', th.StringType()))
         properties.append(th.Property('archived', th.BooleanType()))
+        properties.append(
+            th.Property('associations', th.ObjectType(
+                th.Property("companies", th.ObjectType(
+                    th.Property("results", th.ArrayType(
+                        th.ObjectType(
+                            th.Property("id", th.StringType()),
+                            th.Property("type", th.StringType())
+                        )
+                    ))
+                )),
+                th.Property("contacts", th.ObjectType(
+                    th.Property("results", th.ArrayType(
+                        th.ObjectType(
+                            th.Property("id", th.StringType()),
+                            th.Property("type", th.StringType())
+                        )
+                    ))
+                )),
+                th.Property("deals", th.ObjectType(
+                    th.Property("results", th.ArrayType(
+                        th.ObjectType(
+                            th.Property("id", th.StringType()),
+                            th.Property("type", th.StringType())
+                        )
+                    ))
+                ))
+            ))
+        )
         properties.append(th.Property(
                 'properties', th.ObjectType(*internal_properties)
             ))
@@ -183,12 +194,16 @@ class HubspotStream(RESTStream):
 
     def get_properties(self) -> List[dict]:
         response = requests.get(f"{self.url_base}/crm/v3/properties/{self.name}", headers=self.http_headers)
-        res = response.json()
-
         try:
-            return res["results"]
-        except KeyError:
-            raise KeyError(f"Error retrieving the API query results: {res}")
+            data = response.json()
+            response.raise_for_status()
+            return data.get("results", [])
+        except requests.exceptions.HTTPError as e:
+            self.logger.warning(
+                "Dynamic discovery of properties failed with an exception, "
+                f"continuing gracefully with no dynamic properties: {e}, {data}"
+            )
+            return []
 
     def get_params_from_properties(self, properties: List[dict]) -> List[str]:
         params = []
@@ -222,80 +237,3 @@ class HubspotStream(RESTStream):
             on_backoff=self.backoff_handler,
         )(func)
         return decorator
-
-
-    def get_properties_chunks(self, all_records, batch_size):
-        result = []
-        for i in range(0, len(all_records), batch_size):
-            result.append(list(all_records[i:i + batch_size]))
-        return result
-
-
-    def get_all_url_params(self, url_params: Iterable[dict], context: Optional[dict], next_page_token: Optional[Any]):
-
-        http_method = self.rest_method
-        url: str = self.get_url(context)
-        params: dict = url_params
-        request_data = self.prepare_request_payload(context, next_page_token)
-        headers = self.http_headers
-
-        authenticator = self.authenticator
-        if authenticator:
-            headers.update(authenticator.auth_headers or {})
-            params.update(authenticator.auth_params or {})
-
-        request = cast(
-            requests.PreparedRequest,
-            self.requests_session.prepare_request(
-                requests.Request(
-                    method=http_method,
-                    url=url,
-                    params=params,
-                    headers=headers,
-                    json=request_data,
-                ),
-            ),
-        )
-
-        return request
-
-
-    def prepare_request(
-        self, context: Optional[dict], next_page_token: Optional[Any]
-    ) -> requests.PreparedRequest:
-
-        all_url_params = self.get_url_params(context, next_page_token)
-
-        if isinstance(all_url_params, types.GeneratorType):
-            for url_params in all_url_params:
-                request = self.get_all_url_params(url_params, context, next_page_token)
-                yield request
-
-        else:
-            request = self.get_all_url_params(all_url_params, context, next_page_token)
-            yield request
-
-
-    def request_records(self, context: Optional[dict]) -> Iterable[dict]:
-        next_page_token: Any = None
-        finished = False
-        decorated_request = self.request_decorator(self._request)
-
-        while not finished:
-            get_prepared_request = self.prepare_request(
-                context, next_page_token=next_page_token
-            )
-            for prepared_request in get_prepared_request:
-                resp = decorated_request(prepared_request, context)
-                yield from self.parse_response(resp)
-            previous_token = copy.deepcopy(next_page_token)
-            next_page_token = self.get_next_page_token(
-                response=resp, previous_token=previous_token
-            )
-            if next_page_token and next_page_token == previous_token:
-                raise RuntimeError(
-                    f"Loop detected in pagination. "
-                    f"Pagination token {next_page_token} is identical to prior token."
-                )
-            # Cycle until get_next_page_token() no longer returns a value
-            finished = not next_page_token

@@ -217,11 +217,11 @@ class PropertiesContactsStream(PropertiesStream):
 
 class AssociationsStream(HubspotStream):
     name = "associations"
-    path = "/crm/v3/associations/{fromObjectType}/{toObjectType}/types"
+    path = "/crm/v3/associations/{fromObjectType}/{toObjectType}/batch/read"
 
     fromObjectType = ""
     replication_method = "FULL_TABLE"
-    primary_keys = ["fromObjectType", "toObjectId"]
+    primary_keys = ["id", "fromObjectType", "toObjectId"]
     state_partitioning_keys = ["fromObjectType"]
     replication_key = ""
     # parent_stream_type = DealsStream
@@ -236,7 +236,7 @@ class AssociationsStream(HubspotStream):
         params = super().get_url_params(context, next_page_token)
         LOGGER.info(50 * '=')
         LOGGER.info(context)
-        self.fromObjectType = context["fromObjectType"]
+        self.fromObjectType = context["id"]
         return params
 
     def parse_response(self, response: requests.Response) -> Iterable[dict]:
@@ -248,6 +248,7 @@ class AssociationsStream(HubspotStream):
             ret.append(elem)
 
         return ret
+
 
 
 class AssociationsDealsToCompaniesStream(HubspotStream):
