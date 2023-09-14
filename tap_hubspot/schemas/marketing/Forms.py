@@ -7,25 +7,22 @@ schema = th.PropertiesList(
     th.Property("updatedAt", th.DateTimeType),
     th.Property("archived", th.BooleanType),
     th.Property("fieldGroups",
-        th.CustomType({"anyOf": [{"type": "string"}, {"type": "null"}, {"type:": "array"}]})
-        # todo: doesn't play well with flattening
-        # th.ArrayType(
-        #     th.ObjectType(
-        #         th.Property("groupType", th.StringType),
-        #         th.Property("richTextType", th.StringType),
-        #         th.Property("fields",
-        #             th.ArrayType(
-        #                 th.ObjectType(
-        #                     th.Property("objectTypeId", th.StringType),
-        #                     th.Property("name", th.StringType),
-        #                     th.Property("required", th.BooleanType),
-        #                     th.Property("hidden", th.BooleanType),
-        #                     th.Property("fieldType", th.StringType),
-        #                 )
-        #             )
-        #         )
-        #     )
-        # )
+        th.ObjectType(
+            th.Property("groupType", th.StringType),
+            th.Property("richTextType", th.StringType),
+            th.Property("fields",
+                th.ArrayType(
+                    th.ObjectType(
+                        th.Property("objectTypeId", th.StringType),
+                        th.Property("name", th.StringType),
+                        th.Property("required", th.BooleanType),
+                        th.Property("hidden", th.BooleanType),
+                        th.Property("fieldType", th.StringType),
+                    )
+                )
+            )
+            # )
+        )
     ),
     th.Property("configuration",
         th.ObjectType(
@@ -63,15 +60,13 @@ schema = th.PropertiesList(
     th.Property("legalConsentOptions", th.ObjectType(
         th.Property("communicationConsentText", th.StringType),
         th.Property("communicationsCheckboxes",
-            th.CustomType({"anyOf": [{"type": "string"}, {"type": "null"}, {"type:": "array"}]})
-            # todo: doesn't play well with flattening
-            # th.ArrayType(
-            #     th.ObjectType(
-            #         th.Property("label", th.StringType),
-            #         th.Property("required", th.BooleanType),
-            #         th.Property("subscriptionTypeId", th.IntegerType),
-            #     )
-            # )
+            th.ArrayType(
+                th.ObjectType(
+                    th.Property("label", th.StringType),
+                    th.Property("required", th.BooleanType),
+                    th.Property("subscriptionTypeId", th.IntegerType),
+                )
+            )
         ),
         th.Property("consentToProcessText", th.StringType),
         th.Property("privacyText", th.StringType),
