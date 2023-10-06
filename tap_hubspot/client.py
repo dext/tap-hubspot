@@ -30,6 +30,7 @@ HUBSPOT_OBJECTS = [
     "notes",
     "tasks",
     "emails",
+    "forms",
 ]
 
 

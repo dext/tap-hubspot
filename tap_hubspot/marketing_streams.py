@@ -231,3 +231,63 @@ class MarketingListContactsStream(MarketingListsStream):
 
         row["listId"] = context["listId"]
         return row
+
+
+class FormsStream(MarketingStream):
+    records_jsonpath = "$.[*]"
+    next_page_token_jsonpath = "$.offset"
+    name = "forms"
+    path = "/forms/v2/forms"
+    primary_keys = ["guid"]
+    replication_method = "FULL_TABLE"
+    replication_key = ""
+
+    schema = CampaignIds.schema
+
+    def get_url_params(
+        self, context: Optional[dict], next_page_token: Optional[Any]
+    ) -> Dict[str, Any]:
+        """Return a dictionary of values to be used in URL parameterization."""
+        params = super().get_url_params(context, next_page_token)
+        if next_page_token:
+            params["offset"] = next_page_token
+        params['orderBy'] = "created"
+        return params
+
+    def get_child_context(self, record: dict, context: Optional[dict]) -> dict:
+        """Return a context dictionary for child streams."""
+        return {
+            "guid": record["guid"],
+        }
+
+
+class FormSubmissionsStream(MarketingStream):
+    records_jsonpath = "$.[*]"
+    next_page_token_jsonpath = "$.offset"  # Or override `get_next_page_token`.
+    name = "form_submissions"
+
+    path = "/form-integrations/v1/submissions/forms/{guid}"
+    primary_keys = ["guid"]
+    replication_method = "FULL_TABLE"
+    replication_key = ""
+    parent_stream_type = FormsStream
+
+    schema_filepath = SCHEMAS_DIR / "form_submissions.json"
+
+    def post_process(self, row: dict, context: Optional[dict]) -> dict:
+        """As needed, append or transform raw data to match expected structure.
+        Returns row, or None if row is to be excluded"""
+
+        row["guid"] = context["guid"]
+        return row
+
+    def get_url_params(
+        self, context: Optional[dict], next_page_token: Optional[Any]
+    ) -> Dict[str, Any]:
+        """Return a dictionary of values to be used in URL parameterization."""
+        params = super().get_url_params(context, next_page_token)
+        if next_page_token:
+            params["offset"] = next_page_token
+        params['orderBy'] = "created"
+        params["limit"] = 50
+        return params
