@@ -49,6 +49,7 @@ class WebAnalyticsContactsStream(EventsStream):
     parent_stream_type = ContactsStream
     ignore_parent_replication_key = False
     replication_key = "occurredAt"
+    state_partitioning_keys=[]
 
     def get_url_params(self, context: Optional[dict], next_page_token: Optional[Any]) -> Dict[str, Any]:
         params = super().get_url_params(context, next_page_token)
@@ -64,6 +65,7 @@ class WebAnalyticsDealsStream(EventsStream):
     parent_stream_type = DealsStream
     ignore_parent_replication_key = False
     replication_key = "occurredAt"
+    state_partitioning_keys=[]
 
     def get_url_params(self, context: Optional[dict], next_page_token: Optional[Any]) -> Dict[str, Any]:
         params = super().get_url_params(context, next_page_token)
