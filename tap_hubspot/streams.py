@@ -20,8 +20,9 @@ class MeetingsStream(HubspotStream):
     def get_url_params(
         self, context: Optional[dict], next_page_token: Optional[Any]
     ) -> Dict[str, Any]:
+        selected_properties = self.get_selected_properties()
         params = super().get_url_params(context, next_page_token)
-        params["properties"] = ",".join(self.properties)
+        params["properties"] = ",".join(selected_properties)
         return params
 
     @property
@@ -39,8 +40,9 @@ class CallsStream(HubspotStream):
     def get_url_params(
         self, context: Optional[dict], next_page_token: Optional[Any]
     ) -> Dict[str, Any]:
+        selected_properties = self.get_selected_properties()
         params = super().get_url_params(context, next_page_token)
-        params["properties"] = ",".join(self.properties)
+        params["properties"] = ",".join(selected_properties)
         return params
 
     @property
@@ -73,11 +75,13 @@ class CompaniesStream(HubspotStream):
     primary_keys = ["id"]
     partitions = [{"archived": True}, {"archived": False}]
 
+
     def get_url_params(
         self, context: Optional[dict], next_page_token: Optional[Any]
     ) -> Dict[str, Any]:
+        selected_properties = self.get_selected_properties()
         params = super().get_url_params(context, next_page_token)
-        params["properties"] = ",".join(self.properties)
+        params["properties"] = ",".join(selected_properties)
         params["archived"] = context["archived"]
         params["associations"] = ",".join(HUBSPOT_OBJECTS)
         return params
@@ -103,6 +107,7 @@ class DealsStream(HubspotStream):
     def get_url_params(
         self, context: Optional[dict], next_page_token: Optional[Any]
     ) -> Dict[str, Any]:
+        selected_properties = self.get_selected_properties()
         params = super().get_url_params(context, next_page_token)
         all_properties = self.properties
 
@@ -138,6 +143,7 @@ class ContactsStream(HubspotStream):
     def get_url_params(
         self, context: Optional[dict], next_page_token: Optional[Any]
     ) -> Dict[str, Any]:
+        selected_properties = self.get_selected_properties()
         params = super().get_url_params(context, next_page_token)
         all_properties = self.properties
 
@@ -391,8 +397,9 @@ class QuotesStream(HubspotStream):
     def get_url_params(
         self, context: Optional[dict], next_page_token: Optional[Any]
     ) -> Dict[str, Any]:
+        selected_properties = self.get_selected_properties()
         params = super().get_url_params(context, next_page_token)
-        params["properties"] = ",".join(self.properties)
+        params["properties"] = ",".join(selected_properties)
         params["archived"] = context["archived"]
         params["associations"] = ",".join(HUBSPOT_OBJECTS)
         return params
@@ -412,8 +419,9 @@ class LineItemsStream(HubspotStream):
     def get_url_params(
         self, context: Optional[dict], next_page_token: Optional[Any]
     ) -> Dict[str, Any]:
+        selected_properties = self.get_selected_properties()
         params = super().get_url_params(context, next_page_token)
-        params["properties"] = ",".join(self.properties)
+        params["properties"] = ",".join(selected_properties)
         params["archived"] = context["archived"]
         params["associations"] = ",".join(HUBSPOT_OBJECTS)
         return params
