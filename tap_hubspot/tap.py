@@ -5,13 +5,21 @@ from typing import List
 from singer_sdk import Stream, Tap
 from singer_sdk import typing as th
 
-from tap_hubspot.analytics_streams import AnalyticsViewsStream
+from tap_hubspot.analytics_streams import (
+    AnalyticsViewsStream,
+    # EmailEventsStream,
+    # EmailEventsDetailsStream,
+    EmailCampaignsStream,
+    EmailCampaignsDetailsStream,
+)
 from tap_hubspot.automation_streams import WorkflowsStream
 from tap_hubspot.events_streams import (
     WebAnalyticsContactsStream,
     WebAnalyticsDealsStream,
 )
 from tap_hubspot.marketing_streams import (
+    EmailEventsStream,
+    EmailEventsDetailsStream,
     MarketingCampaignIdsStream,
     MarketingCampaignsStream,
     MarketingEmailsStream,
@@ -20,6 +28,8 @@ from tap_hubspot.marketing_streams import (
     MarketingListsStream,
     FormsStream,
     FormSubmissionsStream,
+    EmailSubscriptionsStream,
+    # EmailSubscriptionsDetailsStream,
 )
 from tap_hubspot.streams import (
     AssociationsCompaniesToContactsStream,
@@ -79,11 +89,16 @@ STREAM_TYPES = [
     MarketingListContactsStream,
     FormsStream,
     FormSubmissionsStream,
+    EmailSubscriptionsStream,
     # Events
     WebAnalyticsContactsStream,
     WebAnalyticsDealsStream,
     ## Analytics
     AnalyticsViewsStream,
+    EmailEventsStream,
+    EmailEventsDetailsStream,
+    EmailCampaignsStream,
+    EmailCampaignsDetailsStream,
     ## Automation
     WorkflowsStream,
 ]

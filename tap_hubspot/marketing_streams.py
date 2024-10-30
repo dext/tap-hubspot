@@ -35,6 +35,7 @@ from tap_hubspot.schemas.marketing import (
     CampaignIds,
     Campaigns,
     Forms,
+    EmailSubscriptions,
 )
 
 class MarketingStream(HubspotStream):
@@ -53,7 +54,7 @@ class MarketingEmailsStream(MarketingStream):
     version = "v1"
     name = "marketing_emails_v1"
     path = f"/marketing-emails/{version}/emails/with-statistics"
-    primary_keys = ["id"]
+    # primary_keys = ["id"]
     replication_key = "updated"
     total_emails = inf
 
@@ -97,7 +98,7 @@ class MarketingCampaignIdsStream(MarketingStream):
     next_page_token_jsonpath = "$.offset"  # Or override `get_next_page_token`.
     name = "campaign_ids_v1"
     path = f"/email/public/{version}/campaigns/by-id"
-    primary_keys = ["id"]
+    # primary_keys = ["id"]
     replication_method = "FULL_TABLE"
     replication_key = ""
 
@@ -112,6 +113,7 @@ class MarketingCampaignIdsStream(MarketingStream):
         if next_page_token:
             params["offset"] = next_page_token
         params['orderBy'] = "created"
+
         return params
 
     def get_child_context(self, record: dict, context: Optional[dict]) -> dict:
@@ -125,7 +127,7 @@ class MarketingCampaignsStream(MarketingStream):
     next_page_token_jsonpath = "$.offset"  # Or override `get_next_page_token`.
     name = "campaigns_v1"
     path = "/email/public/v1/campaigns/{campaign_id}"
-    primary_keys = ["id"]
+    # primary_keys = ["id"]
     replication_method = "FULL_TABLE"
     replication_key = ""
     parent_stream_type = MarketingCampaignIdsStream
@@ -151,11 +153,71 @@ class MarketingCampaignsStream(MarketingStream):
         params['orderBy'] = "created"
         return params
 
+class EmailEventsStream(MarketingStream):
+    """Define custom stream."""
+    next_page_token_jsonpath = "$.offset"
+    name = "email_events"
+    path = "/email/public/v1/events"
+    records_jsonpath = "$.events[*]"
+    # primary_keys = ["id"]
+    replication_key = "created"
+
+    @property
+    def schema_filepath(self) -> Path:
+        return SCHEMAS_DIR / f"{self.name}.json"
+
+    def get_url_params(
+        self, context: Optional[dict], next_page_token: Optional[Any]
+    ) -> Dict[str, Any]:
+        """Return a dictionary of values to be used in URL parameterization."""
+        params = super().get_url_params(context, next_page_token)
+        if next_page_token:
+            params["offset"] = next_page_token
+        params['orderBy'] = "created"
+        return params
+
+    def get_child_context(self, record: dict, context: Optional[dict]) -> dict:
+        """Return a context dictionary for child streams."""
+        return {"created": record["created"], "email_id": record["id"]}
+
+
+class EmailEventsDetailsStream(MarketingStream):
+    name = "email_events_details"
+    path = "/email/public/v1/events/{created}/{email_id}"
+    deal_id = ""
+    replication_method = "FULL_TABLE"
+    # primary_keys = ["id", "toObjectId"]
+    state_partitioning_keys = ["id"]
+    replication_key = ""
+    parent_stream_type = EmailEventsStream
+
+    ignore_parent_replication_keys = True
+
+    @property
+    def schema_filepath(self) -> Path:
+        return SCHEMAS_DIR / f"{self.name}.json"
+
+    def post_process(self, row: dict, context: Optional[dict]) -> dict:
+        """As needed, append or transform raw data to match expected structure.
+        Returns row, or None if row is to be excluded"""
+
+        if self.replication_key:
+            if row[self.replication_key] <= int(self.get_starting_timestamp(context).astimezone(pytz.utc).strftime('%s')):
+                return None
+        return row
+
+    def get_url_params(
+        self, context: Optional[dict], next_page_token: Optional[Any]
+    ) -> Dict[str, Any]:
+        """Return a dictionary of values to be used in URL parameterization."""
+        params = super().get_url_params(context, next_page_token)
+        self.email_id = context["email_id"]
+        return params
 
 class MarketingFormsStream(MarketingStream):
     name = "forms_v3"
     path = "/marketing/v3/forms/"
-    primary_keys = ["id"]
+    # primary_keys = ["id"]
     schema = Forms.schema
 
     def get_url_params(
@@ -176,7 +238,7 @@ class MarketingListsStream(HubspotStream):
     # todo: update when Hubspot updates API to v3
     name = "lists_v1"
     path = "/contacts/v1/lists"
-    primary_keys = ["listId"]
+    # primary_keys = ["listId"]
     replication_method = "FULL_TABLE"
     replication_key = ""
     next_page_token_jsonpath = "$.offset"
@@ -213,7 +275,7 @@ class MarketingListContactsStream(MarketingListsStream):
     records_jsonpath = "$.contacts[*]"
     name = "list_contacts_v1"
     path = "/contacts/v1/lists/{listId}/contacts/all"
-    primary_keys = ["canonical-vid", "listId"]
+    # primary_keys = ["canonical-vid", "listId"]
     replication_method = "FULL_TABLE"
     replication_key = ""
     parent_stream_type = MarketingListsStream
@@ -238,7 +300,7 @@ class FormsStream(MarketingStream):
     next_page_token_jsonpath = "$.offset"
     name = "forms"
     path = "/forms/v2/forms"
-    primary_keys = ["guid"]
+    # primary_keys = ["id"]
     replication_method = "FULL_TABLE"
     replication_key = ""
 
@@ -267,7 +329,7 @@ class FormSubmissionsStream(MarketingStream):
     name = "form_submissions"
 
     path = "/form-integrations/v1/submissions/forms/{guid}"
-    primary_keys = ["guid"]
+    # primary_keys = ["guid"]
     replication_method = "FULL_TABLE"
     replication_key = ""
     parent_stream_type = FormsStream
@@ -278,7 +340,7 @@ class FormSubmissionsStream(MarketingStream):
         """As needed, append or transform raw data to match expected structure.
         Returns row, or None if row is to be excluded"""
 
-        row["guid"] = context["guid"]
+        row["id"] = context["guid"]
         return row
 
     def get_url_params(
@@ -291,3 +353,30 @@ class FormSubmissionsStream(MarketingStream):
         params['orderBy'] = "created"
         params["limit"] = 50
         return params
+
+class EmailSubscriptionsStream(MarketingStream):
+    # records_jsonpath = "$.[*]"
+    # next_page_token_jsonpath = "$.offset"
+    name = "email_subscriptions"
+    path = "/communication-preferences/v4/definitions"
+    # primary_keys = ["id"]
+    replication_method = "FULL_TABLE"
+    replication_key = ""
+    schema = EmailSubscriptions.schema
+
+    def get_url_params(
+        self, context: Optional[dict], next_page_token: Optional[Any]
+    ) -> Dict[str, Any]:
+        """Return a dictionary of values to be used in URL parameterization."""
+        params = super().get_url_params(context, next_page_token)
+        if next_page_token:
+            params["offset"] = next_page_token
+        params['orderBy'] = "created"
+        return params
+
+    def get_child_context(self, record: dict, context: Optional[dict]) -> dict:
+        """Return a context dictionary for child streams."""
+        return {
+            "id": record["id"],
+        }
+

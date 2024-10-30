@@ -44,7 +44,7 @@ class EventsStream(HubspotStream):
 class WebAnalyticsContactsStream(EventsStream):
     name = "web_analytics_contacts_v3"
     path = "/events/v3/events/"
-    primary_keys = ["id"]
+    # primary_keys = ["id"]
     schema = WebAnalyticsContacts.schema
     parent_stream_type = ContactsStream
     ignore_parent_replication_key = False
@@ -60,7 +60,7 @@ class WebAnalyticsContactsStream(EventsStream):
 class WebAnalyticsDealsStream(EventsStream):
     name = "web_analytics_deals_v3"
     path = "/events/v3/events/"
-    primary_keys = ["id"]
+    # primary_keys = ["id"]
     schema = WebAnalyticsDeals.schema
     parent_stream_type = DealsStream
     ignore_parent_replication_key = False

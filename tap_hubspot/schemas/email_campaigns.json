@@ -1,0 +1,17 @@
+{
+    "type": "object",
+    "properties":{
+        "id": {
+            "type": ["null","string"]
+        },
+        "appId": {
+            "type": ["null","string"]
+        },
+        "appName": {
+            "type": ["null","string"]
+        },
+        "lastUpdatedTime": {
+            "type": ["null","integer"]
+        }
+    }
+}

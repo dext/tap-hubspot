@@ -15,7 +15,7 @@ utc = pytz.UTC
 class MeetingsStream(HubspotStream):
     name = "meetings"
     path = "/crm/v3/objects/meetings"
-    primary_keys = ["id"]
+    # primary_keys = ["id"]
 
     def get_url_params(
         self, context: Optional[dict], next_page_token: Optional[Any]
@@ -35,7 +35,7 @@ class MeetingsStream(HubspotStream):
 class CallsStream(HubspotStream):
     name = "calls"
     path = "/crm/v3/objects/calls"
-    primary_keys = ["id"]
+    # primary_keys = ["id"]
 
     def get_url_params(
         self, context: Optional[dict], next_page_token: Optional[Any]
@@ -56,7 +56,7 @@ class OwnersStream(HubspotStream):
     """Define custom stream."""
     name = "owners"
     path = "/crm/v3/owners"
-    primary_keys = ["id"]
+    # primary_keys = ["id"]
     partitions = [{"archived": True}, {"archived": False}]
 
     def get_url_params(
@@ -72,7 +72,7 @@ class CompaniesStream(HubspotStream):
 
     name = "companies"
     path = "/crm/v3/objects/companies"
-    primary_keys = ["id"]
+    # primary_keys = ["id"]
     partitions = [{"archived": True}, {"archived": False}]
 
 
@@ -81,10 +81,14 @@ class CompaniesStream(HubspotStream):
     ) -> Dict[str, Any]:
         selected_properties = self.get_selected_properties()
         params = super().get_url_params(context, next_page_token)
-        params["properties"] = ",".join(selected_properties)
-        params["archived"] = context["archived"]
-        params["associations"] = ",".join(HUBSPOT_OBJECTS)
-        return params
+
+        all_properties = self.properties
+        chunks = self.get_properties_chunks(all_properties, 500)
+        for chunk in chunks:
+            params["properties"] = ",".join(chunk)
+            params["archived"] = context["archived"]
+
+            yield params
 
     @property
     def schema(self) -> dict:
@@ -101,7 +105,7 @@ class DealsStream(HubspotStream):
     """Define custom stream."""
     name = "deals"
     path = "/crm/v3/objects/deals"
-    primary_keys = ["id"]
+    # primary_keys = ["id"]
     partitions = [{"archived": True}, {"archived": False}]
 
     def get_url_params(
@@ -110,13 +114,6 @@ class DealsStream(HubspotStream):
         selected_properties = self.get_selected_properties()
         params = super().get_url_params(context, next_page_token)
         all_properties = self.properties
-
-        chunks = self.get_properties_chunks(all_properties, 300)
-        for chunk in chunks:
-            params["properties"] = ",".join(chunk)
-            params["archived"] = context["archived"]
-
-            yield params
 
         chunks = self.get_properties_chunks(all_properties, 300)
         for chunk in chunks:
@@ -144,7 +141,7 @@ class ContactsStream(HubspotStream):
 
     name = "contacts"
     path = "/crm/v3/objects/contacts"
-    primary_keys = ["id"]
+    # primary_keys = ["id"]
     partitions = [{"archived": True}, {"archived": False}]
 
     def get_url_params(
@@ -171,7 +168,6 @@ class ContactsStream(HubspotStream):
     def get_child_context(self, record: dict, context: Optional[dict]) -> dict:
         """Return a context dictionary for child streams."""
         return {"archived": record["archived"], "contact_id": record["id"]}
-
 
 class PropertiesStream(HubspotStream):
     """Define custom stream."""
@@ -209,7 +205,7 @@ class AssociationsDealsToCompaniesStream(HubspotStream):
     path = "/crm/v4/objects/deals/{deal_id}/associations/companies"
     deal_id = ""
     replication_method = "FULL_TABLE"
-    primary_keys = ["id", "toObjectId"]
+    # primary_keys = ["id", "toObjectId"]
     state_partitioning_keys = ["id"]
     replication_key = ""
     parent_stream_type = DealsStream
@@ -241,7 +237,7 @@ class AssociationsDealsToContactsStream(HubspotStream):
     path = "/crm/v4/objects/deals/{deal_id}/associations/contacts"
     deal_id = ""
     replication_method = "FULL_TABLE"
-    primary_keys = ["id", "toObjectId"]
+    # primary_keys = ["id", "toObjectId"]
     state_partitioning_keys = ["id"]
     replication_key = ""
     parent_stream_type = DealsStream
@@ -273,7 +269,7 @@ class AssociationsContactsToDealsStream(HubspotStream):
     path = "/crm/v4/objects/contacts/{contact_id}/associations/deals"
     deal_id = ""
     replication_method = "FULL_TABLE"
-    primary_keys = ["id", "toObjectId"]
+    # primary_keys = ["id", "toObjectId"]
     state_partitioning_keys = ["id"]
     replication_key = ""
     parent_stream_type = ContactsStream
@@ -305,7 +301,7 @@ class AssociationsContactsToCompaniesStream(HubspotStream):
     path = "/crm/v4/objects/contacts/{contact_id}/associations/companies"
     deal_id = ""
     replication_method = "FULL_TABLE"
-    primary_keys = ["id", "toObjectId"]
+    # primary_keys = ["id", "toObjectId"]
     state_partitioning_keys = ["id"]
     replication_key = ""
     parent_stream_type = ContactsStream
@@ -337,7 +333,7 @@ class AssociationsCompaniesToContactsStream(HubspotStream):
     path = "/crm/v4/objects/companies/{company_id}/associations/contacts"
     deal_id = ""
     replication_method = "FULL_TABLE"
-    primary_keys = ["id", "toObjectId"]
+    # primary_keys = ["id", "toObjectId"]
     state_partitioning_keys = ["id"]
     replication_key = ""
     parent_stream_type = CompaniesStream
@@ -369,7 +365,7 @@ class AssociationsCompaniesToDealsStream(HubspotStream):
     path = "/crm/v4/objects/companies/{company_id}/associations/deals"
     deal_id = ""
     replication_method = "FULL_TABLE"
-    primary_keys = ["id", "toObjectId"]
+    # primary_keys = ["id", "toObjectId"]
     state_partitioning_keys = ["id"]
     replication_key = ""
     parent_stream_type = CompaniesStream
@@ -399,7 +395,7 @@ class AssociationsCompaniesToDealsStream(HubspotStream):
 class QuotesStream(HubspotStream):
     name = "quotes"
     path = "/crm/v3/objects/quotes"
-    primary_keys = ["id"]
+    # primary_keys = ["id"]
     partitions = [{"archived": True}, {"archived": False}]
 
     def get_url_params(
@@ -421,7 +417,7 @@ class QuotesStream(HubspotStream):
 class LineItemsStream(HubspotStream):
     name = "line_items"
     path = "/crm/v3/objects/line_items"
-    primary_keys = ["id"]
+    # primary_keys = ["id"]
     partitions = [{"archived": True}, {"archived": False}]
 
     def get_url_params(

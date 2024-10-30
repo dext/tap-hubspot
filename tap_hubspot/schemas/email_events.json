@@ -1,0 +1,91 @@
+{
+    "type": "object",
+    "properties":{
+        "id": {
+            "type": ["null","string"]
+        },
+        "appId": {
+            "type": ["null","string"]
+        },
+        "created": {
+            "type": ["null","integer"]
+        },
+        "emailCampaignId": {
+            "type": ["null","integer"]
+        },
+        "appName": {
+            "type": ["null","string"]
+        },
+        "portalId": {
+            "type": ["null","integer"]
+        },
+        "recipient": {
+            "type": ["null","string"]
+        },
+        "hmid": {
+            "type": ["null","string"]
+        },
+        "browser": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "family": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "producer": {
+                        "type": "string"
+                    },
+                    "producerUrl": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "url": {
+                        "type": "string"
+                    },
+                    "version": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "location": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "city": {
+                        "type": "string"
+                    },
+                    "country": {
+                        "type": "string"
+                    },
+                    "state": {
+                        "type": "string"
+                    },
+                    "latitude": {
+                        "type": "integer"
+                    },
+                    "longitude": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "type": {
+            "type": ["null","string"]
+        },
+        "userAgent": {
+            "type": ["null","string"]
+        }
+
+    }
+}

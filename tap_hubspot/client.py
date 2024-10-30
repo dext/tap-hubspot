@@ -77,15 +77,19 @@ class HubspotStream(RESTStream):
     def get_next_page_token(
         self, response: requests.Response, previous_token: Optional[Any]
     ) -> Optional[Any]:
-        """Return a token for identifying next page or None if no more pages."""
+        # """Return a token for identifying next page or None if no more pages."""
+        # hasmore = "$.hasMore"
+
+        data = response.json()
+        if (type(data) != list) and (data.get('hasMore', True) == False):
+            return None
+
         if self.next_page_token_jsonpath:
             all_matches = extract_jsonpath(
                 self.next_page_token_jsonpath, response.json()
             )
             first_match = next(iter(all_matches), None)
             next_page_token = first_match
-        else:
-            next_page_token = response.headers.get("X-Next-Page", None)
 
         return next_page_token
 
@@ -338,6 +342,7 @@ class HubspotStream(RESTStream):
                 resp = decorated_request(prepared_request, context)
                 yield from self.parse_response(resp)
             previous_token = copy.deepcopy(next_page_token)
+
             next_page_token = self.get_next_page_token(
                 response=resp, previous_token=previous_token
             )

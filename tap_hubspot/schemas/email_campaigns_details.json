@@ -1,0 +1,55 @@
+{
+    "type": "object",
+    "properties":{
+        "id": {
+            "type": ["null","string"]
+        },
+        "toObjectId": {
+            "type": ["null","string"]
+        },
+        "appId": {
+            "type": ["null","string"]
+        },
+        "appName": {
+            "type": ["null","string"]
+        },
+        "numIncluded": {
+            "type": ["null","integer"]
+        },
+        "numQueued": {
+            "type": ["null","integer"]
+        },
+        "subType": {
+            "type": ["null","string"]
+        },
+        "type": {
+            "type": ["null","string"]
+        },
+        "name": {
+            "type": ["null","string"]
+        },
+        "subject": {
+            "type": ["null","string"]
+        },
+        "contentId": {
+            "type": ["null","integer"]
+        },
+        "counters": {
+            "type": ["null","object"],
+            "properties": {
+                "delivered": {
+                    "type": ["null","integer"]
+                },
+                "open": {
+                    "type": ["null","integer"]
+                },
+                "processed": {
+                    "type": ["null","integer"]
+                },
+                "sent": {
+                    "type": ["null","integer"]
+                }
+            }
+        }
+    }
+}

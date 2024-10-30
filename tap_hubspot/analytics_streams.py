@@ -25,7 +25,7 @@ from singer_sdk import typing as th  # JSON schema typing helpers
 from tap_hubspot.client import HubspotStream
 from tap_hubspot.streams import ContactsStream
 
-SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
+SCHEMAS_DIR = Path(__file__).parent / Path("./schemas/analytics")
 
 utc=pytz.UTC
 
@@ -48,7 +48,7 @@ class AnalyticsStream(HubspotStream):
 class AnalyticsViewsStream(AnalyticsStream):
     name = "analytics_views_v2"
     path = "/analytics/v2/views"
-    primary_keys = ["id"]
+    # primary_keys = ["id"]
     schema = AnalyticsViews.schema
     replication_key = "updatedDate"
 
@@ -59,4 +59,50 @@ class AnalyticsViewsStream(AnalyticsStream):
         data = ret
         yield from extract_jsonpath(self.records_jsonpath, input=data)
 
+class EmailCampaignsStream(HubspotStream):
+    """Define custom stream."""
+    name = "email_campaigns"
+    path = "/email/public/v1/campaigns/by-id"
+    records_jsonpath = "$.campaigns[*]"
+    # primary_keys = ["id"]
+    replication_method = "FULL_TABLE"
+    replication_key = "lastUpdatedTime"
+    next_page_token_jsonpath = "$.offset"
 
+
+    def get_url_params(
+        self, context: Optional[dict], next_page_token: Optional[Any]
+    ) -> Dict[str, Any]:
+        selected_properties = self.get_selected_properties()
+        params = super().get_url_params(context, next_page_token)
+        all_properties = self.properties
+
+        if next_page_token:
+            params["offset"] = next_page_token
+
+        return params
+
+    def get_child_context(self, record: dict, context: Optional[dict]) -> dict:
+        """Return a context dictionary for child streams."""
+        return {"campaign_id": record["id"]}
+
+
+class EmailCampaignsDetailsStream(HubspotStream):
+    name = "email_campaigns_details"
+    path = "/email/public/v1/campaigns/{campaign_id}"
+    deal_id = ""
+    replication_method = "FULL_TABLE"
+    # primary_keys = ["id", "toObjectId"]
+    state_partitioning_keys = ["id"]
+    replication_key = ""
+    parent_stream_type = EmailCampaignsStream
+
+    ignore_parent_replication_keys = True
+
+    def get_url_params(
+        self, context: Optional[dict], next_page_token: Optional[Any]
+    ) -> Dict[str, Any]:
+        """Return a dictionary of values to be used in URL parameterization."""
+        params = super().get_url_params(context, next_page_token)
+        self.campaign_id = context["campaign_id"]
+        return params
