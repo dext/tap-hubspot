@@ -67,20 +67,26 @@ class OwnersStream(HubspotStream):
 
 class CompaniesStream(HubspotStream):
     """Define custom stream."""
-
+    rest_method = 'GET'
     name = "companies"
     path = "/crm/v3/objects/companies"
     primary_keys = ["id"]
     partitions = [{"archived": True}, {"archived": False}]
 
+
     def get_url_params(
         self, context: Optional[dict], next_page_token: Optional[Any]
     ) -> Dict[str, Any]:
         params = super().get_url_params(context, next_page_token)
-        params["properties"] = ",".join(self.properties)
-        params["archived"] = context["archived"]
-        params["associations"] = ",".join(HUBSPOT_OBJECTS)
-        return params
+        all_properties = self.properties
+
+        chunks = self.get_properties_chunks(all_properties, 300)
+        for chunk in chunks:
+            params["properties"] = ",".join(chunk)
+            params["archived"] = context["archived"]
+
+            yield params
+
 
     @property
     def schema(self) -> dict:
