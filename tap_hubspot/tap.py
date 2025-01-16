@@ -107,6 +107,12 @@ class TapHubspot(Tap):
             required=True,
             description="The earliest record date to sync",
         ),
+        th.Property(
+            "end_date",
+            th.DateTimeType,
+            required=True,
+            description="The latest record date to sync",
+        ),
     ).to_dict()
 
     def discover_streams(self) -> List[Stream]:
