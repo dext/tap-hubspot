@@ -173,23 +173,16 @@ class EmailEventsStream(MarketingStream):
         params = super().get_url_params(context, next_page_token)
 
         start_replication_key_value = self.get_starting_replication_key_value(context)
-        start_date = str(int(datetime.timestamp(datetime.strptime(start_replication_key_value, '%Y-%m-%dT%H:%M:%SZ')))) + '000'
+
+        if start_replication_key_value:
+            start_date = str(int(datetime.timestamp(datetime.strptime(start_replication_key_value, '%Y-%m-%dT%H:%M:%SZ')))) + '000'
+            params["startTimestamp"] =  start_date
 
         end_date = self.config.get("end_date")
-        if not end_date:
-            end_date = datetime.timestamp(utc_now())
+        if end_date:
+            end_date = str(int(datetime.timestamp(datetime.strptime(end_date, "%Y-%m-%dT%H:%M:%SZ")))) + '000'
+            params["endTimestamp"] = end_date
 
-        end_date = str(int(datetime.timestamp(datetime.strptime(end_date, "%Y-%m-%dT%H:%M:%SZ")))) + '000'
-
-        # self.logger.info(f'end: {self.config.get("end_date")}')
-        # self.logger.info(f'''end: {int(datetime.timestamp(datetime.strptime(self.config.get("end_date"), '%Y-%m-%dT%H:%M:%SZ')))}''')
-        # self.logger.info(f"end: {end_date}")
-
-        params["startTimestamp"] =  start_date
-        params["endTimestamp"] = end_date
-        # self.logger.info("EMAIL EVENTS")
-        # self.logger.info(f"Params: {params}")
-        # self.logger.info(10 * "*")
         if next_page_token:
             params["offset"] = next_page_token
         params['orderBy'] = "created"
@@ -232,6 +225,17 @@ class EmailEventsDetailsStream(MarketingStream):
         """Return a dictionary of values to be used in URL parameterization."""
         params = super().get_url_params(context, next_page_token)
         self.email_id = context["email_id"]
+        start_replication_key_value = self.get_starting_replication_key_value(context)
+
+        if start_replication_key_value:
+            start_date = str(int(datetime.timestamp(datetime.strptime(start_replication_key_value, '%Y-%m-%dT%H:%M:%SZ')))) + '000'
+            params["startTimestamp"] =  start_date
+
+        end_date = self.config.get("end_date")
+        if end_date:
+            end_date = str(int(datetime.timestamp(datetime.strptime(end_date, "%Y-%m-%dT%H:%M:%SZ")))) + '000'
+            params["endTimestamp"] = end_date
+
         return params
 
 class MarketingFormsStream(MarketingStream):
