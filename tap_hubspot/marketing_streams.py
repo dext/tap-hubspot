@@ -186,7 +186,9 @@ class EmailEventsStream(MarketingStream):
         if next_page_token:
             params["offset"] = next_page_token
         params['orderBy'] = "created"
-
+        self.logger.info(30 * '*')
+        self.logger.info(f"Params: {params}")
+        self.logger.info(30 * '*')
         return params
 
     def get_child_context(self, record: dict, context: Optional[dict]) -> dict:
