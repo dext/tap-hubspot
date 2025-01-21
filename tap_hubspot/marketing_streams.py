@@ -172,16 +172,16 @@ class EmailEventsStream(MarketingStream):
         """Return a dictionary of values to be used in URL parameterization."""
         params = super().get_url_params(context, next_page_token)
 
-        start_replication_key_value = self.get_starting_replication_key_value(context)
+        # start_replication_key_value = self.get_starting_replication_key_value(context)
 
-        if start_replication_key_value:
-            start_date = str(int(datetime.timestamp(datetime.strptime(start_replication_key_value, '%Y-%m-%dT%H:%M:%SZ')))) + '000'
-            params["startTimestamp"] =  start_date
+        # if start_replication_key_value:
+        #     start_date = str(int(datetime.timestamp(datetime.strptime(start_replication_key_value, '%Y-%m-%dT%H:%M:%SZ')))) + '000'
+        #     params["startTimestamp"] =  start_date
 
-        end_date = self.config.get("end_date")
-        if end_date:
-            end_date = str(int(datetime.timestamp(datetime.strptime(end_date, "%Y-%m-%dT%H:%M:%SZ")))) + '000'
-            params["endTimestamp"] = end_date
+        # end_date = self.config.get("end_date")
+        # if end_date:
+        #     end_date = str(int(datetime.timestamp(datetime.strptime(end_date, "%Y-%m-%dT%H:%M:%SZ")))) + '000'
+        #     params["endTimestamp"] = end_date
 
         if next_page_token:
             params["offset"] = next_page_token
