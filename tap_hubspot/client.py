@@ -78,6 +78,11 @@ class HubspotStream(RESTStream):
         # hasmore = "$.hasMore"
 
         data = response.json()
+        self.logger.info(30 * "-")
+        self.logger.info(f"has more: {data.get('hasMore')}")
+        self.logger.info(f"offset: {data.get('offset')}")
+        self.logger.info(f"after: {data.get('after')}")
+        self.logger.info(30 * "-")
         if (type(data) != list) and (data.get('hasMore', True) == False):
             return None
 
@@ -96,21 +101,28 @@ class HubspotStream(RESTStream):
         """Return a dictionary of values to be used in URL parameterization."""
         params: dict = {}
 
-        start_replication_key_value = self.get_starting_replication_key_value(context)
+        # params["startTimestamp"] = '1737386207000'
+        # # params["endTimestamp"] = '1737559007000'
+        # params["endTimestamp"] = '1737415007000'
 
-        if start_replication_key_value:
-            start_date = str(int(datetime.timestamp(datetime.strptime(start_replication_key_value, '%Y-%m-%dT%H:%M:%SZ')))) + '000'
-            params["startTimestamp"] =  start_date
 
-        end_date = self.config.get("end_date")
-        if end_date:
-            end_date = str(int(datetime.timestamp(datetime.strptime(end_date, "%Y-%m-%dT%H:%M:%SZ")))) + '000'
-            params["endTimestamp"] = end_date
 
+        # start_replication_key_value = self.get_starting_replication_key_value(context)
+        # self.logger.info(f"start_replication_key_value: {start_replication_key_value}")
+
+        # if start_replication_key_value:
+        #     start_date = str(int(datetime.timestamp(datetime.strptime(start_replication_key_value, '%Y-%m-%dT%H:%M:%SZ')))) + '000'
+        #     self.logger.info(f"start_date: {start_date}")
+        #     params["startTimestamp"] = start_date
+
+        # end_date = self.config.get("end_date")
+        # if end_date:
+        #     end_date = str(int(datetime.timestamp(datetime.strptime(end_date, "%Y-%m-%dT%H:%M:%SZ")))) + '000'
+        #     params["endTimestamp"] = end_date
 
         if next_page_token:
             params["after"] = next_page_token
-        params["limit"] = 100
+        params["limit"] = 1000
         return params
 
     def prepare_request_payload(
