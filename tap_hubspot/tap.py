@@ -114,7 +114,7 @@ class TapHubspot(Tap):
         th.Property(
             "end_date",
             th.DateTimeType,
-            required=True,
+            required=False,
             description="The latest record date to sync",
         ),
     ).to_dict()
