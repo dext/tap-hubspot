@@ -96,7 +96,7 @@ class MarketingCampaignIdsStream(MarketingStream):
     version = "v1"
     records_jsonpath = "$.campaigns[*]"
     next_page_token_jsonpath = "$.offset"  # Or override `get_next_page_token`.
-    name = "campaign_ids_v1"
+    name = "email_campaigns"
     path = f"/email/public/{version}/campaigns/by-id"
     # primary_keys = ["id"]
     replication_method = "FULL_TABLE"
@@ -125,7 +125,7 @@ class MarketingCampaignIdsStream(MarketingStream):
 class MarketingCampaignsStream(MarketingStream):
     records_jsonpath = "$.[*]"
     next_page_token_jsonpath = "$.offset"  # Or override `get_next_page_token`.
-    name = "campaigns_v1"
+    name = "email_campaigns_details"
     path = "/email/public/v1/campaigns/{campaign_id}"
     # primary_keys = ["id"]
     replication_method = "FULL_TABLE"
@@ -156,6 +156,7 @@ class MarketingCampaignsStream(MarketingStream):
 class EmailEventsStream(MarketingStream):
     """Define custom stream."""
     next_page_token_jsonpath = "$.offset"
+    replication_method = "INCREMENTAL"
     name = "email_events"
     path = "/email/public/v1/events"
     records_jsonpath = "$.events[*]"
@@ -204,7 +205,7 @@ class EmailEventsDetailsStream(MarketingStream):
     name = "email_events_details"
     path = "/email/public/v1/events/{created}/{email_id}"
     deal_id = ""
-    replication_method = "FULL_TABLE"
+    replication_method = "INCREMENTAL"
     # primary_keys = ["id", "toObjectId"]
     state_partitioning_keys = ["id", "created"]
     replication_key = ""
