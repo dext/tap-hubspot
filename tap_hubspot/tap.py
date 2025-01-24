@@ -21,7 +21,8 @@ from tap_hubspot.marketing_streams import (
     FormsStream,
     FormSubmissionsStream,
     EmailEventsStream,
-    EmailEventsDetailsStream
+    EmailEventsDetailsStream,
+    EmailSubscriptionsStream
 )
 from tap_hubspot.streams import (
     AssociationsCompaniesToContactsStream,
@@ -83,6 +84,7 @@ STREAM_TYPES = [
     FormSubmissionsStream,
     EmailEventsStream,
     EmailEventsDetailsStream,
+    EmailSubscriptionsStream,
     # Events
     WebAnalyticsContactsStream,
     WebAnalyticsDealsStream,
