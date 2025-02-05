@@ -20,6 +20,9 @@ from tap_hubspot.marketing_streams import (
     MarketingListsStream,
     FormsStream,
     FormSubmissionsStream,
+    EmailEventsStream,
+    EmailEventsDetailsStream,
+    EmailSubscriptionsStream
 )
 from tap_hubspot.streams import (
     AssociationsCompaniesToContactsStream,
@@ -79,6 +82,9 @@ STREAM_TYPES = [
     MarketingListContactsStream,
     FormsStream,
     FormSubmissionsStream,
+    EmailEventsStream,
+    EmailEventsDetailsStream,
+    EmailSubscriptionsStream,
     # Events
     WebAnalyticsContactsStream,
     WebAnalyticsDealsStream,
@@ -106,6 +112,12 @@ class TapHubspot(Tap):
             th.DateTimeType,
             required=True,
             description="The earliest record date to sync",
+        ),
+        th.Property(
+            "end_date",
+            th.DateTimeType,
+            required=False,
+            description="The latest record date to sync",
         ),
     ).to_dict()
 
