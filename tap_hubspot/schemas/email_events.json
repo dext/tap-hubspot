@@ -8,7 +8,7 @@
             "type": ["null","string"]
         },
         "created": {
-            "type": ["null","integer"]
+            "type": ["null","string"]
         },
         "emailCampaignId": {
             "type": ["null","integer"]
