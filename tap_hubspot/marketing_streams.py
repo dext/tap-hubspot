@@ -176,8 +176,10 @@ class EmailEventsStream(MarketingStream):
         start_replication_key_value = self.get_starting_replication_key_value(context)
 
         if start_replication_key_value:
-            start_date = str(int(datetime.timestamp(datetime.strptime(start_replication_key_value, '%Y-%m-%dT%H:%M:%SZ')))) + '000'
-            params["startTimestamp"] =  start_date
+            start_date = start_replication_key_value
+            if type(start_date) == str:
+                start_date = str(int(datetime.timestamp(datetime.strptime(start_replication_key_value, '%Y-%m-%dT%H:%M:%SZ')))) + '000'
+            params["startTimestamp"] = start_date
 
         end_date = self.config.get("end_date")
         if end_date:
