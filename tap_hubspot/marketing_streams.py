@@ -98,7 +98,7 @@ class MarketingCampaignIdsStream(MarketingStream):
     next_page_token_jsonpath = "$.offset"  # Or override `get_next_page_token`.
     name = "email_campaigns"
     path = f"/email/public/{version}/campaigns/by-id"
-    # primary_keys = ["id"]
+    primary_keys = ["id"]
     replication_method = "FULL_TABLE"
     replication_key = ""
 
@@ -127,10 +127,11 @@ class MarketingCampaignsStream(MarketingStream):
     next_page_token_jsonpath = "$.offset"  # Or override `get_next_page_token`.
     name = "email_campaigns_details"
     path = "/email/public/v1/campaigns/{campaign_id}"
-    # primary_keys = ["id"]
+    primary_keys = ["id"]
     replication_method = "FULL_TABLE"
     replication_key = ""
     parent_stream_type = MarketingCampaignIdsStream
+    ignore_parent_replication_key = True
 
     schema = Campaigns.schema
 
@@ -160,7 +161,7 @@ class EmailEventsStream(MarketingStream):
     name = "email_events"
     path = "/email/public/v1/events"
     records_jsonpath = "$.events[*]"
-    # primary_keys = ["id"]
+    primary_keys = ["id"]
     replication_key = "created"
 
     @property
@@ -236,7 +237,7 @@ class EmailEventsDetailsStream(MarketingStream):
 class MarketingFormsStream(MarketingStream):
     name = "forms_v3"
     path = "/marketing/v3/forms/"
-    # primary_keys = ["id"]
+    primary_keys = ["id"]
     schema = Forms.schema
 
     def get_url_params(
@@ -319,9 +320,9 @@ class FormsStream(MarketingStream):
     next_page_token_jsonpath = "$.offset"
     name = "forms"
     path = "/forms/v2/forms"
-    # primary_keys = ["id"]
-    replication_method = "FULL_TABLE"
-    replication_key = ""
+    primary_keys = ["guid"]
+    replication_method = "INCREMENTAL"
+    replication_key = "createdAt"
 
     schema = CampaignIds.schema
 
