@@ -131,7 +131,8 @@ class MarketingCampaignsStream(MarketingStream):
     replication_method = "FULL_TABLE"
     replication_key = ""
     parent_stream_type = MarketingCampaignIdsStream
-    ignore_parent_replication_key = True
+    state_partitioning_keys = []
+    # ignore_parent_replication_key = True
 
     schema = Campaigns.schema
 
@@ -205,7 +206,8 @@ class EmailEventsDetailsStream(MarketingStream):
     deal_id = ""
     replication_method = "INCREMENTAL"
     # primary_keys = ["id", "toObjectId"]
-    state_partitioning_keys = ["id", "created"]
+    # state_partitioning_keys = ["id", "created"]
+    state_partitioning_keys = []
     replication_key = ""
     parent_stream_type = EmailEventsStream
 
