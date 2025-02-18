@@ -365,7 +365,7 @@ class FormSubmissionsStream(MarketingStream):
         """As needed, append or transform raw data to match expected structure.
         Returns row, or None if row is to be excluded"""
 
-        row["id"] = context["guid"]
+        row["guid"] = context["guid"]
         return row
 
     def get_url_params(
