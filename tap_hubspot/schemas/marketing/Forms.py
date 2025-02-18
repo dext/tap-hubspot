@@ -3,7 +3,7 @@ from singer_sdk import typing as th  # JSON Schema typing helpers
 schema = th.PropertiesList(
     th.Property("id", th.StringType),
     th.Property("name", th.StringType),
-    th.Property("createdAt", th.DateTimeType),
+    th.Property("createdAt", th.StringType),
     th.Property("updatedAt", th.DateTimeType),
     th.Property("archived", th.BooleanType),
     th.Property("fieldGroups",
