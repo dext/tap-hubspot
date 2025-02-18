@@ -352,7 +352,7 @@ class FormSubmissionsStream(MarketingStream):
     name = "form_submissions"
 
     path = "/form-integrations/v1/submissions/forms/{guid}"
-    # primary_keys = ["guid"]
+    primary_keys = ["guid"]
     replication_method = "FULL_TABLE"
     replication_key = ""
     parent_stream_type = FormsStream
