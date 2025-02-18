@@ -318,10 +318,10 @@ class MarketingListContactsStream(MarketingListsStream):
 
 
 class FormsStream(MarketingStream):
-    records_jsonpath = "$.[*]"
+    # records_jsonpath = "$.[*]"
     next_page_token_jsonpath = "$.offset"
     name = "forms"
-    path = "/forms/v2/forms"
+    path = "/marketing/v3/forms/"
     primary_keys = ["guid"]
     replication_method = "INCREMENTAL"
     replication_key = "createdAt"
@@ -335,13 +335,14 @@ class FormsStream(MarketingStream):
         params = super().get_url_params(context, next_page_token)
         if next_page_token:
             params["offset"] = next_page_token
-        params['orderBy'] = "created"
+        params['orderBy'] = "createdAt"
         return params
 
     def get_child_context(self, record: dict, context: Optional[dict]) -> dict:
         """Return a context dictionary for child streams."""
+        self.logger.info(f"Record: {record}")
         return {
-            "guid": record["guid"],
+            "guid": record["id"],
         }
 
 
