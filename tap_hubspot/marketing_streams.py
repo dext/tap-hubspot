@@ -205,13 +205,13 @@ class EmailEventsDetailsStream(MarketingStream):
     path = "/email/public/v1/events/{created}/{email_id}"
     deal_id = ""
     replication_method = "INCREMENTAL"
-    # primary_keys = ["id", "toObjectId"]
+    primary_keys = ["id", "toObjectId"]
     # state_partitioning_keys = ["id", "created"]
     state_partitioning_keys = []
     replication_key = ""
     parent_stream_type = EmailEventsStream
 
-    ignore_parent_replication_keys = True
+    # ignore_parent_replication_keys = True
 
     @property
     def schema_filepath(self) -> Path:
@@ -326,7 +326,7 @@ class FormsStream(MarketingStream):
     replication_method = "INCREMENTAL"
     replication_key = "createdAt"
 
-    schema = CampaignIds.schema
+    schema_filepath = SCHEMAS_DIR / "forms.json"
 
     def get_url_params(
         self, context: Optional[dict], next_page_token: Optional[Any]
@@ -355,6 +355,8 @@ class FormSubmissionsStream(MarketingStream):
     replication_method = "FULL_TABLE"
     replication_key = ""
     parent_stream_type = FormsStream
+
+    state_partitioning_keys = []
 
     schema_filepath = SCHEMAS_DIR / "form_submissions.json"
 
