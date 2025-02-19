@@ -361,14 +361,14 @@ class FormSubmissionsStream(MarketingStream):
 
     schema_filepath = SCHEMAS_DIR / "form_submissions.json"
 
-    # def post_process(self, row: dict, context: Optional[dict]) -> dict:
-    #     """As needed, append or transform raw data to match expected structure.
-    #     Returns row, or None if row is to be excluded"""
-    #     self.logger.info(30 * "=")
-    #     self.logger.info(f"Row: {row}")
-    #     self.logger.info(30 * "=")
-    #     row["conversionId"] = context["guid"]
-    #     return row
+    def post_process(self, row: dict, context: Optional[dict]) -> dict:
+        """As needed, append or transform raw data to match expected structure.
+        Returns row, or None if row is to be excluded"""
+        self.logger.info(30 * "=")
+        self.logger.info(f"Row: {row}")
+        self.logger.info(30 * "=")
+        row["guid"] = context["guid"]
+        return row
 
     def get_url_params(
         self, context: Optional[dict], next_page_token: Optional[Any]
