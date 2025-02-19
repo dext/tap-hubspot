@@ -1,7 +1,7 @@
 {
     "type": "object",
     "properties": {
-        "guid": {
+        "conversionId": {
             "type": ["null", "string"]
         },
         "submittedAt": {
