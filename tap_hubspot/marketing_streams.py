@@ -364,7 +364,9 @@ class FormSubmissionsStream(MarketingStream):
     def post_process(self, row: dict, context: Optional[dict]) -> dict:
         """As needed, append or transform raw data to match expected structure.
         Returns row, or None if row is to be excluded"""
-
+        self.logger.info(30 * "=")
+        self.logger.info(f"Row: {row}")
+        self.logger.info(30 * "=")
         row["guid"] = context["guid"]
         return row
 
@@ -375,7 +377,7 @@ class FormSubmissionsStream(MarketingStream):
         params = super().get_url_params(context, next_page_token)
         if next_page_token:
             params["offset"] = next_page_token
-        # params['orderBy'] = "created"
+        params['orderBy'] = "created"
         params["limit"] = 50
         return params
 
