@@ -347,7 +347,7 @@ class FormsStream(MarketingStream):
 
 
 class FormSubmissionsStream(MarketingStream):
-    records_jsonpath = "$.[*]"
+    # records_jsonpath = "$.[*]"
     next_page_token_jsonpath = "$.offset"  # Or override `get_next_page_token`.
     name = "form_submissions"
 
