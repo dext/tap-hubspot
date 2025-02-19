@@ -322,7 +322,7 @@ class FormsStream(MarketingStream):
     next_page_token_jsonpath = "$.offset"
     name = "forms"
     path = "/marketing/v3/forms/"
-    primary_keys = ["guid"]
+    primary_keys = ["id"]
     replication_method = "INCREMENTAL"
     replication_key = "createdAt"
 

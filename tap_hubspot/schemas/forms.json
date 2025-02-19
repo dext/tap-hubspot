@@ -7,7 +7,7 @@
         "portalId": {
             "type": ["null", "integer"]
         },
-        "guid": {
+        "id": {
             "type": ["null", "string"]
         },
         "name": {
