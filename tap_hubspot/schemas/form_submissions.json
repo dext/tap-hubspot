@@ -5,8 +5,7 @@
             "type": ["null", "string"]
         },
         "submittedAt": {
-            "type": ["null", "string"],
-            "format": "date-time"
+            "type": ["null", "string"]
         },
         "values": {
             "type": "array",

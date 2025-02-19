@@ -375,7 +375,7 @@ class FormSubmissionsStream(MarketingStream):
         params = super().get_url_params(context, next_page_token)
         if next_page_token:
             params["offset"] = next_page_token
-        params['orderBy'] = "created"
+        # params['orderBy'] = "created"
         params["limit"] = 50
         return params
 
