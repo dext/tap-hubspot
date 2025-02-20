@@ -23,6 +23,9 @@
         },
         "pageUrl": {
             "type": ["null", "string"]
+        },
+        "guid": {
+            "type": ["null", "string"]
         }
     }
 }

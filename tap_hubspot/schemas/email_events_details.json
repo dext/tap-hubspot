@@ -1,5 +1,5 @@
 {
-    "type": "object",
+    "type": "string",
     "properties":{
         "id": {
             "type": ["null","string"]
@@ -23,7 +23,7 @@
             "type": ["null","string"]
         },
         "browser": {
-            "type": "array",
+            "type": "string",
             "items": {
                 "type": "object",
                 "properties": {
@@ -55,7 +55,7 @@
             }
         },
         "location": {
-            "type": "array",
+            "type": "string",
             "items": {
                 "type": "object",
                 "properties": {

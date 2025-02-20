@@ -201,11 +201,12 @@ class EmailEventsStream(MarketingStream):
 
 
 class EmailEventsDetailsStream(MarketingStream):
+    records_jsonpath = "$.[*]"
     name = "email_events_details"
     path = "/email/public/v1/events/{created}/{email_id}"
     deal_id = ""
-    replication_method = "INCREMENTAL"
-    primary_keys = ["id", "toObjectId"]
+    replication_method = "FULL_TABLE"
+    primary_keys = ["id"]
     # state_partitioning_keys = ["id", "created"]
     state_partitioning_keys = []
     replication_key = ""
@@ -220,10 +221,18 @@ class EmailEventsDetailsStream(MarketingStream):
     def post_process(self, row: dict, context: Optional[dict]) -> dict:
         """As needed, append or transform raw data to match expected structure.
         Returns row, or None if row is to be excluded"""
+        self.logger.info(30 * "=")
+        self.logger.info(f"Row: {row}")
+        self.logger.info(f"Context: {context}")
+        self.logger.info(30 * "=")
+
 
         if self.replication_key:
             if row[self.replication_key] <= int(self.get_starting_timestamp(context).astimezone(pytz.utc).strftime('%s')):
                 return None
+        self.logger.info(30 * "=")
+        self.logger.info(f"Row: {row}")
+        self.logger.info(30 * "=")
         return row
 
     def get_url_params(
@@ -232,7 +241,12 @@ class EmailEventsDetailsStream(MarketingStream):
         """Return a dictionary of values to be used in URL parameterization."""
         params = super().get_url_params(context, next_page_token)
         self.email_id = context["email_id"]
-        self.created = context["created"]
+        # self.created = context["created"]
+        self.created = 1451552694881000
+        self.logger.info(30 * "=")
+        self.logger.info(f"Context: {context}")
+        self.logger.info(params)
+        self.logger.info(30 * "=")
 
         return params
 
@@ -364,10 +378,10 @@ class FormSubmissionsStream(MarketingStream):
     def post_process(self, row: dict, context: Optional[dict]) -> dict:
         """As needed, append or transform raw data to match expected structure.
         Returns row, or None if row is to be excluded"""
+        row["guid"] = context["guid"]
         self.logger.info(30 * "=")
         self.logger.info(f"Row: {row}")
         self.logger.info(30 * "=")
-        row["guid"] = context["guid"]
         return row
 
     def get_url_params(
